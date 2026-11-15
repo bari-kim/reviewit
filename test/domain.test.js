@@ -1,0 +1,7 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {initialState,submitReview,reviewTransition,balance,expected,filterProducts,fileError} from '../src/domain.js';
+const valid={productId:'tumbler',rating:5,body:'매일 가지고 다니는데 가벼워서 좋아요. 세척도 편해서 만족해요.',proof:true,consent:true};
+test('submission requires review, rating, proof and consent',()=>{assert.equal(Object.keys(submitReview(initialState,{},'1').errors).length,4);});
+test('pending review earns no spendable points; repeated approval does not double credit',()=>{let s=submitReview(initialState,valid,'1').state;assert.equal(balance(s),0);assert.equal(expected(s),500);s=reviewTransition(s,'1','approved');s=reviewTransition(s,'1','approved');assert.equal(balance(s),500);assert.equal(expected(s),0);});
+test('duplicate pending and approved reviews blocked; rejected can resubmit',()=>{let s=submitReview(initialState,valid,'1').state;assert.ok(submitReview(s,valid,'2').errors.duplicate);s=reviewTransition(s,'1','rejected');assert.equal(balance(s),0);assert.ok(submitReview(s,valid,'2').state);});
+test('search and category combined, with empty results',()=>{assert.equal(filterProducts('텀블러','생활').length,1);assert.equal(filterProducts('텀블러','뷰티').length,0);});
+test('proof files reject oversize and unsupported types',()=>{assert.ok(fileError({type:'text/html',size:100}));assert.ok(fileError({type:'image/png',size:6*1024*1024}));assert.equal(fileError({type:'image/png',size:100}),'');});

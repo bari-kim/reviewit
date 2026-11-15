@@ -40,4 +40,3 @@ npm run build
 ## 설계 근거와 AI 활용
 
 `PROCESS.md` 참고. 기존 Figma 초안: https://www.figma.com/design/Z2X1rpUqJgrmRcha9BpFtr
-
